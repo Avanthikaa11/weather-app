@@ -7,17 +7,22 @@ environment {
 
 stages {
 
-    stage('Build') {
+    stage('Clean') {
         steps {
             bat '''
                 set "PATH=%JAVA_HOME%\\bin;%PATH%"
 
-                echo JAVA_HOME=%JAVA_HOME%
-                where java
-                java -version
-                mvn -version
+                mvn clean
+            '''
+        }
+    }
 
-                mvn clean package -DskipTests
+    stage('Package') {
+        steps {
+            bat '''
+                set "PATH=%JAVA_HOME%\\bin;%PATH%"
+
+                mvn package -DskipTests
             '''
         }
     }
@@ -27,27 +32,39 @@ stages {
             bat '''
                 set "PATH=%JAVA_HOME%\\bin;%PATH%"
 
-                java -version
                 mvn test
+            '''
+        }
+    }
+
+    stage('Verify') {
+        steps {
+            bat '''
+                set "PATH=%JAVA_HOME%\\bin;%PATH%"
+
+                mvn verify -DskipTests
             '''
         }
     }
 
     stage('Deploy') {
         steps {
-            echo 'Weather Mule application deployment stage'
+            bat '''
+                set "PATH=%JAVA_HOME%\\bin;%PATH%"
+
+                mvn deploy -DskipTests
+            '''
         }
     }
 }
 
 post {
     success {
-        echo 'Weather application pipeline completed successfully in Jenkins'
+        echo 'Weather Mule application pipeline completed successfully'
     }
 
     failure {
-        echo 'Weather application pipeline failed in Jenkins'
+        echo 'Weather Mule application pipeline failed'
     }
 }
-
 }
