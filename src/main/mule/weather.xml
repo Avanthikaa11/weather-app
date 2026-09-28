@@ -12,7 +12,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="9f43cf97-ec71-4997-b2d4-bfd24d8c4b09" >
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
-	<flow name="weatherFlowget" doc:id="eaf0a093-4103-401d-aa30-1bfa664742ff" >
+	<flow name="GetWeatherFlow" doc:id="eaf0a093-4103-401d-aa30-1bfa664742ff" >
 		<http:listener doc:name="Listener" doc:id="3b0eea2c-9c91-4ca9-992a-d65ecd85ec70" config-ref="HTTP_Listener_config" path="/weather" allowedMethods="GET"/>
 		<try doc:name="Try" doc:id="cdd5de00-2bb6-4c81-9852-a0fb2f19856f" >
 			<db:select doc:name="Select" doc:id="470947ac-5002-4c3d-a2fb-bfedf1f038f6" config-ref="Database_Config">
@@ -54,7 +54,7 @@ output application/json
 ---
 {
     status: "ERROR",
-    message: "Unable to process",
+    message: "Internal Server Error",
     errorType: error.errorType.identifier
 }]]></ee:set-payload>
 					</ee:message>
@@ -62,7 +62,7 @@ output application/json
 			</on-error-propagate>
 		</error-handler>
 	</flow>
-	<flow name="weatherFlowpost" doc:id="3ea29ee9-7e4f-45df-99a2-5013b91dc1a4" >
+	<flow name="PostWeatherFlow" doc:id="3ea29ee9-7e4f-45df-99a2-5013b91dc1a4" >
 		<http:listener doc:name="Listener" doc:id="1898b1b4-cb1d-44fd-ad1e-aef8898713b0" config-ref="HTTP_Listener_config" path="/weather" allowedMethods="POST"/>
 		<try doc:name="Try" doc:id="41898655-18ae-46ec-a259-84e7f2314e9c" >
 			<db:insert doc:name="Insert" doc:id="04a1fc71-746e-4c07-afbd-bf63581754d7" config-ref="Database_Config">
@@ -114,7 +114,7 @@ output application/json
 ---
 {
     status: "ERROR",
-    message: "Unable to process ",
+    message: "Internal Server Error ",
     errorType: error.errorType.identifier
 }]]></ee:set-payload>
 					</ee:message>
