@@ -1,8 +1,7 @@
 pipeline {
     agent any
     
-    set JAVA_HOME=C:\Program Files\Zulu\zulu-17
-set PATH=%JAVA_HOME%\bin;%PATH%
+    tools { jdk 'Zulu-17' maven 'Maven-3.9.12' }
 
     stages {
 
