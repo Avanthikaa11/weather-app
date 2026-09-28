@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="d605ea7b-e3ce-473f-86cb-beb51fa78893" >
+		<db:generic-connection url="jdbc:postgresql://localhost:5432/weather" driverClassName="org.postgresql.Driver" user="postgres" password="Nttdata@123" />
+	</db:config>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="9f43cf97-ec71-4997-b2d4-bfd24d8c4b09" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="weatherFlowget" doc:id="eaf0a093-4103-401d-aa30-1bfa664742ff" >
+		<http:listener doc:name="Listener" doc:id="3b0eea2c-9c91-4ca9-992a-d65ecd85ec70" config-ref="HTTP_Listener_config" path="/weather" allowedMethods="GET"/>
+		<try doc:name="Try" doc:id="cdd5de00-2bb6-4c81-9852-a0fb2f19856f" >
+			<db:select doc:name="Select" doc:id="470947ac-5002-4c3d-a2fb-bfedf1f038f6" config-ref="Database_Config">
+			<db:sql><![CDATA[SELECT id, w_date, w_temp, w_wind, w_humidity
+FROM weather
+ORDER BY w_date;]]></db:sql>
+		</db:select>
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="49bd95b4-40dc-4116-af4c-3a2916174944" type="DB:CONNECTIVITY">
+					<ee:transform doc:name="Transform Message" doc:id="b80155bd-4065-40b7-88a3-c9bd01428630" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    status: "ERROR",
+    message: "Unable to process weather request",
+    errorType: error.errorType.identifier
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="Transform Message" doc:id="52c2eea4-47a5-4649-a016-7a0d15356df5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="ec31e7d7-fbbe-4998-86d8-0972a8de6701" >
+				<ee:transform doc:name="Transform Message" doc:id="2e218766-3e2d-40f9-8c63-320c7e4d0535" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    status: "ERROR",
+    message: "Unable to process",
+    errorType: error.errorType.identifier
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="weatherFlowpost" doc:id="3ea29ee9-7e4f-45df-99a2-5013b91dc1a4" >
+		<http:listener doc:name="Listener" doc:id="1898b1b4-cb1d-44fd-ad1e-aef8898713b0" config-ref="HTTP_Listener_config" path="/weather" allowedMethods="POST"/>
+		<try doc:name="Try" doc:id="41898655-18ae-46ec-a259-84e7f2314e9c" >
+			<db:insert doc:name="Insert" doc:id="04a1fc71-746e-4c07-afbd-bf63581754d7" config-ref="Database_Config">
+			<db:sql><![CDATA[INSERT INTO weather
+(w_date, w_temp, w_wind, w_humidity)
+VALUES
+(:w_date, :w_temp, :w_wind, :w_humidity)]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+        w_date: payload.w_date,
+        w_temp: payload.w_temp,
+        w_wind: payload.w_wind,
+        w_humidity: payload.w_humidity
+    }]]]></db:input-parameters>
+		</db:insert>
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="da1c334c-515c-4c40-875f-c259315381fe" type="DB:QUERY_EXECUTION" >
+					<ee:transform doc:name="Transform Message" doc:id="9b54818a-4074-4c5b-80f9-3aa54f25d5b9" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    status: "ERROR",
+    message: "Bad query",
+    errorType: error.errorType.identifier
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="Transform Message" doc:id="c9bab37e-4ddc-4136-b0e9-d3f92b62218d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    status: "SUCCESS",
+    message: "Weather record created successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="c738311d-330d-4b13-b55c-3ebb3f8b03f8" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="803ccf08-350f-49a0-9b9f-721ce846ed9c" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    status: "ERROR",
+    message: "Unable to process ",
+    errorType: error.errorType.identifier
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
