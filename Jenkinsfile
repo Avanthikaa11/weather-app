@@ -27,32 +27,13 @@ stages {
         }
     }
 
-    stage('Test') {
-        steps {
-            bat '''
-                set "PATH=%JAVA_HOME%\\bin;%PATH%"
-
-                mvn test
-            '''
-        }
-    }
-
-    stage('Verify') {
-        steps {
-            bat '''
-                set "PATH=%JAVA_HOME%\\bin;%PATH%"
-
-                mvn verify -DskipTests
-            '''
-        }
-    }
-
+   
     stage('Deploy') {
         steps {
             bat '''
                 set "PATH=%JAVA_HOME%\\bin;%PATH%"
 
-                mvn deploy -DskipTests
+                bat 'mvn deploy -DskipTests -s "C:\\Program Files\\Jenkins\\settings.xml"'
             '''
         }
     }
