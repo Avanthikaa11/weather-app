@@ -31,7 +31,7 @@ set PATH=%JAVA_HOME%\bin;%PATH%
         }
 
         failure {
-            echo 'Weather application pipeline failed'
+            echo 'Weather application pipeline failed in jenkins'
         }
     }
 }
