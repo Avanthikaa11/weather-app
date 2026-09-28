@@ -1,36 +1,53 @@
 pipeline {
-    agent any
-    
-    tools { jdk 'Zulu-17' maven 'Maven-3.9.12' }
+agent any
 
-    stages {
+environment {
+    JAVA_HOME = 'C:\\Program Files\\Zulu\\zulu-17'
+}
 
-        stage('Build') {
-            steps {
-                bat 'mvn clean package -DskipTests'
-            }
-        }
+stages {
 
-        stage('Test') {
-            steps {
-                bat 'mvn test'
-            }
-        }
+    stage('Build') {
+        steps {
+            bat '''
+                set "PATH=%JAVA_HOME%\\bin;%PATH%"
 
-        stage('Deploy') {
-            steps {
-                echo 'Weather Mule application deployment stage'
-            }
+                echo JAVA_HOME=%JAVA_HOME%
+                where java
+                java -version
+                mvn -version
+
+                mvn clean package -DskipTests
+            '''
         }
     }
 
-    post {
-        success {
-            echo 'Weather application pipeline completed successfully'
-        }
+    stage('Test') {
+        steps {
+            bat '''
+                set "PATH=%JAVA_HOME%\\bin;%PATH%"
 
-        failure {
-            echo 'Weather application pipeline failed in jenkins'
+                java -version
+                mvn test
+            '''
         }
     }
+
+    stage('Deploy') {
+        steps {
+            echo 'Weather Mule application deployment stage'
+        }
+    }
+}
+
+post {
+    success {
+        echo 'Weather application pipeline completed successfully in Jenkins'
+    }
+
+    failure {
+        echo 'Weather application pipeline failed in Jenkins'
+    }
+}
+
 }
