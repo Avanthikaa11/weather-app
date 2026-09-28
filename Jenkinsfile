@@ -33,7 +33,7 @@ stages {
             bat '''
                 set "PATH=%JAVA_HOME%\\bin;%PATH%"
 
-                bat 'mvn deploy -DskipTests -s "C:\\Program Files\\Jenkins\\settings.xml"'
+                mvn deploy -DskipTests -s "C:\\Program Files\\Jenkins\\settings.xml"
             '''
         }
     }
