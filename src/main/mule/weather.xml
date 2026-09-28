@@ -45,6 +45,7 @@ output application/json
 payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="889d398a-1f05-4590-816a-e32d4515f829" message="Weather GET request received"/>
 		<error-handler >
 			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="ec31e7d7-fbbe-4998-86d8-0972a8de6701" >
 				<ee:transform doc:name="Transform Message" doc:id="2e218766-3e2d-40f9-8c63-320c7e4d0535" >
@@ -105,6 +106,7 @@ output application/json
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="6e1de9bd-3a67-4f73-99f5-5b97095c4698" message="Weather POST successfull" />
 		<error-handler >
 			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="c738311d-330d-4b13-b55c-3ebb3f8b03f8" type="ANY">
 				<ee:transform doc:name="Transform Message" doc:id="803ccf08-350f-49a0-9b9f-721ce846ed9c" >
