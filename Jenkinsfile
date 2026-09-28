@@ -1,51 +1,43 @@
 pipeline {
-agent any
+    agent any
 
-environment {
-    JAVA_HOME = 'C:\\Program Files\\Zulu\\zulu-17'
-}
+    environment {
+        JAVA_HOME = 'C:\\Program Files\\Zulu\\zulu-17'
+        MAVEN_OPTS = '-Djavax.net.ssl.trustStore=C:\\Users\\10361687\\maven-certs\\cacerts -Djavax.net.ssl.trustStorePassword=changeit'
+    }
 
-stages {
+    stages {
 
-    stage('Clean') {
-        steps {
-            bat '''
-                set "PATH=%JAVA_HOME%\\bin;%PATH%"
+        stage('Clean') {
+            steps {
+                bat '''
+                    set "PATH=%JAVA_HOME%\\bin;%PATH%"
 
-                mvn clean
-            '''
+                 
+                    mvn clean package -U
+                '''
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                bat '''
+                    set "PATH=%JAVA_HOME%\\bin;%PATH%"
+
+
+                    mvn deploy -DskipTests -s "C:\\Program Files\\Jenkins\\settings.xml" -e -U
+                '''
+            }
         }
     }
 
-    stage('Package') {
-        steps {
-            bat '''
-                set "PATH=%JAVA_HOME%\\bin;%PATH%"
+    post {
+        success {
+            echo 'Weather Mule application pipeline completed successfully'
+        }
 
-                mvn package -DskipTests
-            '''
+        failure {
+            echo 'Weather Mule application pipeline failed'
         }
     }
-
-   
-    stage('Deploy') {
-        steps {
-            bat '''
-                set "PATH=%JAVA_HOME%\\bin;%PATH%"
-
-                mvn deploy -DskipTests -s "C:\\Program Files\\Jenkins\\settings.xml"
-            '''
-        }
-    }
-}
-
-post {
-    success {
-        echo 'Weather Mule application pipeline completed successfully'
-    }
-
-    failure {
-        echo 'Weather Mule application pipeline failed'
-    }
-}
 }
